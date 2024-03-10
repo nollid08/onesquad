@@ -13,20 +13,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Manager {
-  id              String           @id @default(uuid())
-  email           String           @unique
-  hashedPassword  String
-  firstName       String
-  lastName        String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  managerSessions ManagerSession[]
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  hashedPassword String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  sessions       Session[]
+  athlete        Athlete?
+  manager        Manager?
 }
 
-model ManagerSession {
+model Session {
   id        String   @id
-  manager   Manager  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   expiresAt DateTime
+}
+
+model Manager {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Athlete {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
 }

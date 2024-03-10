@@ -1,4 +1,4 @@
-import { isValidEmail, lucia } from '$lib/server/auth';
+import { isManager, isValidEmail, lucia } from '$lib/server/auth';
 import { Argon2id } from 'oslo/password';
 import type { Actions, PageServerLoad } from './$types';
 import { generateId } from 'lucia';
@@ -8,7 +8,10 @@ import { error, fail, redirect } from '@sveltejs/kit';
 
 export const load = (async ({ locals }) => {
     if (locals.user) {
-        redirect(303, "/manager/dashboard");
+        const userIsManager = await isManager(locals);
+        if (userIsManager) {
+            redirect(303, "/manager/dashboard");
+        }
     }
     return {};
 }) satisfies PageServerLoad;
@@ -45,23 +48,27 @@ export const actions = {
 
 
         const hashedPassword = await new Argon2id().hash(password);
-        const managerId = generateId(15);
 
         try {
-            const newManager: Manager = {
-                id: managerId,
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                hashedPassword: hashedPassword,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            };
-            const id = (await client.manager.create({ data: newManager })).id;
+            const userId = (await client.user.create({
+                data: {
+                    email: email,
+                    hashedPassword: hashedPassword,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    manager: {
+                        create: {
+                            firstName: firstName,
+                            lastName: lastName,
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
+                        }
+                    }
+                }
+            })).id;
 
-            console.log(id);
-            console.log(managerId)
-            const session = await lucia.createSession(id, {});
+
+            const session = await lucia.createSession(userId, {});
             const sessionCookie = lucia.createSessionCookie(session.id);
             cookies.set(sessionCookie.name, sessionCookie.value, {
                 path: ".",

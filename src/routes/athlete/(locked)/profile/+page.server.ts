@@ -2,16 +2,16 @@ import { lucia } from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load = (async () => {
+export const load = (async ({ locals }) => {
     return {};
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
     logout: async (event) => {
-        if (!event.locals.session) {
+        if (!event.locals.userSession) {
             return fail(401);
         }
-        await lucia.invalidateSession(event.locals.session.id);
+        await lucia.invalidateSession(event.locals.userSession.id);
         const sessionCookie = lucia.createBlankSessionCookie();
         event.cookies.set(sessionCookie.name, sessionCookie.value, {
             path: ".",

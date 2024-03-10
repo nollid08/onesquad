@@ -1,18 +1,22 @@
 import { client } from '$lib/server/db';
 import { Argon2id } from 'oslo/password';
 import type { Actions, PageServerLoad } from './$types';
-import { lucia } from '$lib/server/auth';
+import { authCheck, isAthlete, isManager, lucia } from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 
 export const load = (async ({ locals }) => {
     if (locals.user) {
-        redirect(303, "/manager/dashboard");
+        if (await isManager(locals)) {
+            redirect(303, "/manager/dashboard");
+        } else if (await isAthlete(locals)) {
+            redirect(303, "/athlete/profile");
+        }
     }
     return {};
 }) satisfies PageServerLoad;
 
 export const actions = {
-    default: async ({ request, cookies }) => {
+    default: async ({ request, cookies, locals }) => {
 
 
         const formData = await request.formData();
@@ -32,7 +36,7 @@ export const actions = {
         let user;
 
         try {
-            user = await client.manager.findUniqueOrThrow({
+            user = await client.user.findUniqueOrThrow({
                 where: {
                     email: email
                 }
@@ -63,7 +67,14 @@ export const actions = {
             ...sessionCookie.attributes
         });
 
-
-        redirect(303, "/manager/dashboard");
+        authCheck({
+            locals,
+            ifIsManager: () => {
+                redirect(303, "/manager/dashboard");
+            },
+            ifIsAthlete: () => {
+                redirect(303, "/athlete/profile");
+            },
+        });
     },
 } satisfies Actions;

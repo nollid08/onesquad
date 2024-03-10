@@ -9,7 +9,7 @@ declare global {
 		// interface Platform {}
 		interface Locals {
 			user: import("lucia").User | null;
-			session: import("lucia").Session | null;
+			userSession: import("lucia").Session | null;
 		}
 	}
 }

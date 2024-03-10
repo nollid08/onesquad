@@ -5,7 +5,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     const sessionId = event.cookies.get(lucia.sessionCookieName);
     if (!sessionId) {
         event.locals.user = null;
-        event.locals.session = null;
+        event.locals.userSession = null;
         return resolve(event);
     }
 
@@ -27,6 +27,6 @@ export const handle: Handle = async ({ event, resolve }) => {
         });
     }
     event.locals.user = user;
-    event.locals.session = session;
+    event.locals.userSession = session;
     return resolve(event);
 };
