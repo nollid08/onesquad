@@ -1,9 +1,3 @@
-<script lang="ts">
-	import type { PageData } from './$types';
-
-	export let data: PageData;
-</script>
-
 <div class="grid place-items-center h-full m-2">
 	<div class="p-10 bg-black/25 rounded-xl prose">
 		<h1 class="mx-auto w-max">Athlete Registration</h1>

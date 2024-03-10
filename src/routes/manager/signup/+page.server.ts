@@ -77,7 +77,7 @@ export const actions = {
 
 
         } catch (err: any) {
-            console.log(err);
+            console.error(err);
             error(403, {
                 message: err.message || "An error occurred. Please try again."
             });

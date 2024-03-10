@@ -10,7 +10,6 @@ export const load = (async ({ locals }) => {
     if (locals.user) {
         const userIsAthlete = await isAthlete(locals);
         if (userIsAthlete) {
-            console.log("redirecting athlete->profile")
             redirect(303, "/athlete/profile");
         }
     }
@@ -78,7 +77,7 @@ export const actions = {
 
 
         } catch (err: any) {
-            console.log(err);
+            console.error(err);
             error(403, {
                 message: err.message || "An error occurred. Please try again."
             });
