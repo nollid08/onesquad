@@ -1,18 +1,18 @@
-import { isAthlete, isValidEmail, lucia } from '$lib/server/auth';
+import { isManager, isValidEmail, lucia } from '$lib/server/auth';
 import { Argon2id } from 'oslo/password';
 import type { Actions, PageServerLoad } from './$types';
 import { generateId } from 'lucia';
 import { client } from '$lib/server/db';
-import type { Manager } from '@prisma/client';
+import type { Manager, User } from '@prisma/client';
 import { error, fail, redirect } from '@sveltejs/kit';
 
 export const load = (async ({ locals }) => {
-    if (locals.user) {
-        const userIsAthlete = await isAthlete(locals);
-        if (userIsAthlete) {
-            redirect(303, "/athlete/profile");
-        }
-    }
+    // if (locals.user) {
+    //     const userIsManager = await isManager(locals);
+    //     if (userIsManager) {
+    //         redirect(303, "/manager/dashboard");
+    //     }
+    // }
     return {};
 }) satisfies PageServerLoad;
 
@@ -21,51 +21,80 @@ export const actions = {
     default: async ({ request, cookies }) => {
         const formData = await request.formData();
         const email = formData.get("email");
+        const password = formData.get("password");
+        const firstName = formData.get("firstName");
+        const lastName = formData.get("lastName");
+        const squadName = formData.get("squadName");
+        const phoneNumber = formData.get("phoneNumber");
+        const country = formData.get("country");
+        const emblem = formData.get("emblem")?.toString();
+        console.table({ email, password, firstName, lastName, squadName, country, phoneNumber })
+
         if (!email || typeof email !== "string" || !isValidEmail(email)) {
             return fail(400, {
                 message: "Invalid email"
             });
         }
-        const password = formData.get("password");
         if (!password || typeof password !== "string" || password.length < 6) {
             return fail(400, {
                 message: "Invalid password"
             });
         }
-        const firstName = formData.get("firstName");
 
         if (!firstName || typeof firstName !== "string") {
             return fail(400, {
                 message: "Invalid first name"
             });
         }
-        const lastName = formData.get("lastName");
         if (!lastName || typeof lastName !== "string") {
             return fail(400, {
                 message: "Invalid last name"
             });
         }
+        if (!squadName || typeof squadName !== "string") {
+            return fail(400, {
+                message: "Invalid squad name"
+            });
+        }
+        if (!phoneNumber || typeof phoneNumber !== "string") {
+            return fail(400, {
+                message: "Invalid phone number"
+            });
+        }
+        if (!country || typeof country !== "string") {
+            return fail(400, {
+                message: "Invalid country"
+            });
+        }
+
+
 
 
         const hashedPassword = await new Argon2id().hash(password);
 
         try {
-            const userId = (await client.user.create({
+            const user: User = await client.user.create({
                 data: {
-                    email: email,
+                    email,
                     hashedPassword: hashedPassword,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    athlete: {
+                    firstName,
+                    lastName,
+                    Squad: {
                         create: {
-                            firstName: firstName,
-                            lastName: lastName,
-                            createdAt: new Date(),
-                            updatedAt: new Date(),
+                            name: squadName,
+                            country,
+                            emblem: emblem ?? 'DEFAULTSQUADEMBLEM'
+                        }
+                    },
+                    manager: {
+                        create: {
+                            mobileNumber: phoneNumber,
                         }
                     }
+
                 }
-            })).id;
+            });
+            const userId = user.id;
 
 
             const session = await lucia.createSession(userId, {});
@@ -83,6 +112,7 @@ export const actions = {
             });
 
         }
-        redirect(303, "/athlete/profile");
+        console.log('Redirecting...')
+        redirect(307, "/manager/dashboard");
     },
 } satisfies Actions;

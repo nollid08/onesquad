@@ -8,7 +8,7 @@
 
 <div class="grid place-items-center h-full m-2">
 	<div class="p-10 bg-black/25 rounded-xl prose">
-		<h1 class="mx-auto w-max">Manager Sign In</h1>
+		<h1 class="mx-auto w-max">Login</h1>
 		<form class="form-control justify-center min-h-40" method="post">
 			<label class="input input-bordered flex items-center gap-2 my-2">
 				<svg

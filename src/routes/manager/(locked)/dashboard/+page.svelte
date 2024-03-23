@@ -4,7 +4,7 @@
 	export let data: PageData;
 </script>
 
-<div class="grid place-items-center h-full">
+<div class="grid place-items-center flex-grow">
 	<div class="text-center">
 		<h1>Logged In As Manager</h1>
 		<br />

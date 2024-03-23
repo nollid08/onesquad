@@ -17,11 +17,15 @@ model User {
   id             String    @id @default(uuid())
   email          String    @unique
   hashedPassword String
+  firstName      String
+  lastName       String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   sessions       Session[]
   athlete        Athlete?
   manager        Manager?
+  squadId        String    @unique
+  Squad          Squad?    @relation(fields: [squadId], references: [id])
 }
 
 model Session {
@@ -32,21 +36,28 @@ model Session {
 }
 
 model Manager {
+  id           String   @id @default(uuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  mobileNumber String   @unique
+}
+
+model Athlete {
   id        String   @id @default(uuid())
-  firstName String
-  lastName  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id])
 }
 
-model Athlete {
+model Squad {
   id        String   @id @default(uuid())
-  firstName String
-  lastName  String
+  name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
+  emblem    String
+  country   String
+  users     User[]
 }

@@ -7,10 +7,7 @@
 			<li><a href="/login">Login</a></li>
 		</ul>
 		<ul class="menu menu-horizontal px-1">
-			<li><a href="/manager/signup">Manager Registration!</a></li>
-		</ul>
-		<ul class="menu menu-horizontal px-1">
-			<li><a href="/athlete/signup">Athlete Registration</a></li>
+			<li><a href="/onboarding/squad">Get Started</a></li>
 		</ul>
 	</div>
 </div>
